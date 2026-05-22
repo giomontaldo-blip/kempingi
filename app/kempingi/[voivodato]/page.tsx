@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { db } from "@/lib/db";
-import { VOIVODATY, getVoivodato } from "@/lib/voivodaty";
-import { breadcrumbSchema, campingListSchema } from "@/lib/schema";
+import { VOIVODATY, getVoivodato } from "../../lib/voivodaty";
+import { d1Query } from "../../lib/d1-fetch";
+import { breadcrumbSchema, campingListSchema } from "../../lib/schema";
 
-export const revalidate = 86400;
+export const dynamic = "force-static";
 
 export async function generateStaticParams() {
   return VOIVODATY.map((v) => ({ voivodato: v.slug }));
@@ -21,17 +21,41 @@ export async function generateMetadata({ params }: { params: Promise<{ voivodato
   };
 }
 
+interface CampingRow {
+  id: string;
+  name: string;
+  slug: string;
+  city: string;
+  lat: number;
+  lng: number;
+  price_min: number;
+  rating: number;
+  review_count: number;
+  has_pool: number;
+  pets_allowed: number;
+  near_lake: number;
+  near_sea: number;
+  is_glamping: number;
+  is_featured: number;
+  listing_tier: string;
+}
+
 export default async function VoivodatoPage({ params }: { params: Promise<{ voivodato: string }> }) {
   const { voivodato: slug } = await params;
   const voiv = getVoivodato(slug);
   if (!voiv) notFound();
 
-  let campings = [];
-  try {
-    campings = await db.getCampingsByVoivodato(slug);
-  } catch {
-    campings = [];
-  }
+  const campings = await d1Query<CampingRow>(
+    `SELECT c.id, c.name, c.slug, l.city, c.lat, c.lng,
+            c.price_min, c.rating, c.review_count,
+            c.has_pool, c.pets_allowed, c.near_lake, c.near_sea,
+            c.is_glamping, c.is_featured, c.listing_tier
+     FROM campings c JOIN locations l ON l.id = c.location_id
+     WHERE l.voivodato_slug = ?
+     ORDER BY c.is_featured DESC, c.rating DESC
+     LIMIT 24`,
+    [slug]
+  );
 
   const pageUrl = `https://kempingi.com/kempingi/${slug}/`;
   const breadcrumbs = [
@@ -41,53 +65,52 @@ export default async function VoivodatoPage({ params }: { params: Promise<{ voiv
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([breadcrumbSchema(breadcrumbs), campingListSchema(campings, voiv.h1_pl, pageUrl)]) }} />
-      <main id="main-content" className="max-w-5xl mx-auto px-4 py-6">
-        <nav aria-label="Ścieżka nawigacji">
-          <ol className="flex gap-2 text-sm text-gray-500 mb-4 flex-wrap">
-            {breadcrumbs.map((b, i) => (
-              <li key={b.url} className="flex items-center gap-2">
-                {i > 0 && <span aria-hidden="true">›</span>}
-                {i < breadcrumbs.length - 1 ? <a href={b.url} className="hover:text-green-700">{b.name}</a> : <span className="text-gray-900 font-medium">{b.name}</span>}
-              </li>
-            ))}
-          </ol>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([
+        breadcrumbSchema(breadcrumbs),
+        campingListSchema(campings.map(c => ({...c, voivodato_slug: slug})), voiv.h1_pl, pageUrl)
+      ]) }} />
+      <div style={{ maxWidth: "960px", margin: "0 auto", padding: "16px 20px" }}>
+        <nav style={{ fontSize: "13px", color: "#999", marginBottom: "16px" }}>
+          <a href="/" style={{ color: "#999" }}>Strona główna</a> ›{" "}
+          <span style={{ color: "#111" }}>{voiv.name}</span>
         </nav>
-        <h1 className="text-2xl font-medium mb-1">{voiv.h1_pl}</h1>
-        <p className="text-gray-500 text-sm mb-6">Znalezione: <strong className="text-gray-900">{campings.length} kempingów</strong></p>
+        <h1 style={{ fontSize: "24px", fontWeight: 500, marginBottom: "4px" }}>{voiv.h1_pl}</h1>
+        <p style={{ color: "#666", fontSize: "14px", marginBottom: "24px" }}>
+          Znalezione: <strong style={{ color: "#111" }}>{campings.length} kempingów</strong>
+        </p>
         {campings.length === 0 ? (
-          <p className="text-gray-400 text-sm py-12 text-center">Brak kempingów w tej lokalizacji. Wróć wkrótce!</p>
+          <p style={{ color: "#999", fontSize: "14px" }}>Brak kempingów w tej lokalizacji. Wróć wkrótce!</p>
         ) : (
-          <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" role="list">
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "16px" }}>
             {campings.map((c) => (
-              <li key={c.id}>
-                <a href={`/kempingi/${c.voivodato_slug}/${c.slug}/`} className="block border border-gray-200 rounded-xl overflow-hidden hover:border-green-500 transition-colors">
-                  <div className="h-36 bg-green-50 flex items-center justify-center text-green-300 text-sm">
-                    {c.primary_image ? <img src={c.primary_image.url} alt={c.primary_image.alt} className="w-full h-full object-cover" loading="lazy" /> : <span>🏕️</span>}
+              <a key={c.id} href={`/kempingi/${slug}/${c.slug}/`}
+                style={{ display: "block", border: "1px solid #e5e7eb", borderRadius: "12px", overflow: "hidden", textDecoration: "none", color: "inherit" }}>
+                <div style={{ height: "140px", background: "#E1F5EE", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "40px" }}>
+                  🏕️
+                </div>
+                <div style={{ padding: "12px" }}>
+                  {c.is_featured ? <span style={{ fontSize: "11px", background: "#FEF3C7", color: "#92400E", padding: "2px 8px", borderRadius: "20px", marginBottom: "6px", display: "inline-block" }}>Wyróżniony</span> : null}
+                  <h2 style={{ fontSize: "14px", fontWeight: 500, margin: "0 0 4px" }}>{c.name}</h2>
+                  <p style={{ fontSize: "12px", color: "#666", margin: "0 0 8px" }}>{c.city}</p>
+                  <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginBottom: "8px" }}>
+                    {c.has_pool ? <span style={{ fontSize: "11px", background: "#E1F5EE", color: "#065F46", padding: "2px 6px", borderRadius: "4px" }}>z basenem</span> : null}
+                    {c.pets_allowed ? <span style={{ fontSize: "11px", background: "#E1F5EE", color: "#065F46", padding: "2px 6px", borderRadius: "4px" }}>psy OK</span> : null}
+                    {c.near_lake ? <span style={{ fontSize: "11px", background: "#E1F5EE", color: "#065F46", padding: "2px 6px", borderRadius: "4px" }}>nad jeziorem</span> : null}
                   </div>
-                  <div className="p-3">
-                    {c.is_featured && <span className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full mb-1 inline-block">Wyróżniony</span>}
-                    <h2 className="font-medium text-sm mb-0.5">{c.name}</h2>
-                    <p className="text-xs text-gray-500 mb-2">{c.city}</p>
-                    <div className="flex gap-1 flex-wrap mb-2">
-                      {c.has_pool && <span className="text-xs bg-green-50 text-green-800 px-1.5 py-0.5 rounded">z basenem</span>}
-                      {c.pets_allowed && <span className="text-xs bg-green-50 text-green-800 px-1.5 py-0.5 rounded">psy OK</span>}
-                      {c.near_lake && <span className="text-xs bg-green-50 text-green-800 px-1.5 py-0.5 rounded">nad jeziorem</span>}
-                      {c.is_glamping && <span className="text-xs bg-amber-50 text-amber-800 px-1.5 py-0.5 rounded">glamping</span>}
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-gray-500">
-                        {c.rating > 0 ? <><span className="text-amber-500">★</span> <span className="font-medium text-gray-900">{c.rating.toFixed(1)}</span> <span className="text-gray-400">({c.review_count})</span></> : <span className="text-gray-400">brak opinii</span>}
-                      </span>
-                      <span className="text-sm font-medium text-green-700">od {c.price_min} zł<span className="text-xs text-gray-400">/noc</span></span>
-                    </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: "12px", color: "#666" }}>
+                      {c.rating > 0 ? <><span style={{ color: "#F59E0B" }}>★</span> {c.rating.toFixed(1)}</> : "brak opinii"}
+                    </span>
+                    <span style={{ fontSize: "14px", fontWeight: 500, color: "#1D9E75" }}>
+                      {c.price_min > 0 ? `od ${c.price_min} zł/noc` : ""}
+                    </span>
                   </div>
-                </a>
-              </li>
+                </div>
+              </a>
             ))}
-          </ul>
+          </div>
         )}
-      </main>
+      </div>
     </>
   );
 }
