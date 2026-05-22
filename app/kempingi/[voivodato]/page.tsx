@@ -7,11 +7,7 @@ import { VOIVODATY, getVoivodato } from "@/lib/voivodaty";
 import { d1Query } from "@/lib/d1-fetch";
 import { breadcrumbSchema, campingListSchema } from "@/lib/schema";
 
-export const dynamic = "force-static";
 
-export async function generateStaticParams() {
-  return VOIVODATY.map((v) => ({ voivodato: v.slug }));
-}
 
 export async function generateMetadata({ params }: { params: Promise<{ voivodato: string }> }): Promise<Metadata> {
   const { voivodato: slug } = await params;
