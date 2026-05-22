@@ -7,7 +7,7 @@ import { campingSchema, faqSchema, breadcrumbSchema } from "@/lib/schema";
 export const revalidate = 86400;
 
 export async function generateStaticParams() {
-  return [];
+  return [{ voivodato: "mazury", slug: "placeholder" }];
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ voivodato: string; slug: string }> }): Promise<Metadata> {
