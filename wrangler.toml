@@ -1,0 +1,32 @@
+# wrangler.toml
+# Cloudflare Pages + D1 configuration for kempingi.com
+
+name = "kempingi"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".vercel/output/static"
+
+# ─── D1 Database ─────────────────────────────────────────────────────────────
+[[d1_databases]]
+binding = "DB"              # accessed as env.DB in Workers / as __D1_DB__ via adapter
+database_name = "kempingi-prod"
+database_id = "REPLACE_WITH_YOUR_D1_ID"   # `wrangler d1 create kempingi-prod`
+migrations_dir = "db/migrations"
+
+# ─── Dev: local D1 ───────────────────────────────────────────────────────────
+# Run locally with: wrangler pages dev -- npm run dev
+# D1 data stored in .wrangler/state/
+
+# ─── KV (optional: cache layer for popular pages) ────────────────────────────
+# [[kv_namespaces]]
+# binding = "KV_CACHE"
+# id = "REPLACE_WITH_KV_ID"
+
+# ─── Environment variables ────────────────────────────────────────────────────
+[vars]
+SITE_URL = "https://kempingi.com"
+NODE_ENV = "production"
+
+# ─── Secrets (set via wrangler secret put) ───────────────────────────────────
+# GOOGLE_PLACES_API_KEY   — for enrichment script
+# REVALIDATION_SECRET     — for on-demand ISR via webhook
