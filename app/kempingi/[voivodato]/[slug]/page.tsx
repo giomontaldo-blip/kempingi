@@ -8,11 +8,6 @@ export const revalidate = 86400;
 
 export async function generateStaticParams() {
   return [];
-  try {
-    return await db.getAllCampingSlugs();
-  } catch {
-    return [];
-  }
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ voivodato: string; slug: string }> }): Promise<Metadata> {
