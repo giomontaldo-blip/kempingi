@@ -1,7 +1,13 @@
 name = "kempingi"
 compatibility_date = "2024-09-23"
-pages_build_output_dir = "out"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".vercel/output/static"
 
 [vars]
 SITE_URL = "https://kempingi.com"
 NODE_ENV = "production"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "kempingi-prod"
+database_id = "39ab8dd1-9201-4933-93ef-0ca5b22f9efa"
