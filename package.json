@@ -10,14 +10,14 @@
   "dependencies": {
     "next": "15.3.2",
     "react": "19.2.0",
-    "react-dom": "19.2.0"
+    "react-dom": "19.2.0",
+    "tailwindcss": "^4",
+    "@cloudflare/workers-types": "^4.20260521.1"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260522.1",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "tailwindcss": "^4",
     "typescript": "^5"
   }
 }
