@@ -123,8 +123,12 @@ export default async function CampingDetailPage({ params }: { params: Promise<{ 
           </div>
           <aside className="lg:w-60 flex-shrink-0">
             <div className="border border-gray-200 rounded-xl p-4 lg:sticky lg:top-4">
-              <p className="text-xs text-gray-400">od</p>
-              <p className="text-3xl font-medium">{camping.price_min} zł<span className="text-sm text-gray-400 font-normal">/noc</span></p>
+                {camping.price_min > 0 && (
+                  <>
+                    <p className="text-xs text-gray-400">od</p>
+                    <p className="text-3xl font-medium">{camping.price_min} zł<span className="text-sm text-gray-400 font-normal">/noc</span></p>
+                  </>
+                )}
               <a href={camping.affiliate_url ?? camping.website ?? "#"} className="block w-full text-center bg-green-600 hover:bg-green-700 text-white rounded-lg py-3 mt-4 mb-2 text-sm font-medium transition-colors">
                 Sprawdź dostępność
               </a>
