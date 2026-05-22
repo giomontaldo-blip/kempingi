@@ -1,4 +1,4 @@
-import type { CampingWithLocation } from "../types/db";
+import type { CampingWithLocation } from "@/types/db";
 
 const SITE_URL = "https://kempingi.com";
 const SITE_NAME = "kempingi.com";

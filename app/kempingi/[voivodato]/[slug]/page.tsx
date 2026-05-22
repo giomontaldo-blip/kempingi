@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { db } from "../../../lib/db";
-import { getVoivodato } from "../../../lib/voivodaty";
-import { campingSchema, faqSchema, breadcrumbSchema } from "../../../lib/schema";
+import { db } from "@/lib/db";
+import { getVoivodato } from "@/lib/voivodaty";
+import { campingSchema, faqSchema, breadcrumbSchema } from "@/lib/schema";
 
 export const revalidate = 86400;
 

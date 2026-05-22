@@ -1,4 +1,4 @@
-import type { CampingListItem, CampingWithLocation, Obszar } from "../types/db";
+import type { CampingListItem, CampingWithLocation, Obszar } from "@/types/db";
 
 declare global {
   var __D1_DB__: D1Database | undefined;
