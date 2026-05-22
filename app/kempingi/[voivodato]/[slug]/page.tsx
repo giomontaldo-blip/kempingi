@@ -7,6 +7,7 @@ import { campingSchema, faqSchema, breadcrumbSchema } from "@/lib/schema";
 export const revalidate = 86400;
 
 export async function generateStaticParams() {
+  return [];
   try {
     return await db.getAllCampingSlugs();
   } catch {
