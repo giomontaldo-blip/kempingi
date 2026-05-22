@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { VOIVODATY, getVoivodato } from "../../lib/voivodaty";
-import { d1Query } from "../../lib/d1-fetch";
-import { breadcrumbSchema, campingListSchema } from "../../lib/schema";
+import { VOIVODATY, getVoivodato } from "@/lib/voivodaty";
+import { d1Query } from "@/lib/d1-fetch";
+import { breadcrumbSchema, campingListSchema } from "@/lib/schema";
 
 export const dynamic = "force-static";
 
