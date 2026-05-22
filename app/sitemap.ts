@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { VOIVODATY } from "@/lib/voivodaty";
+import { VOIVODATY } from "../lib/voivodaty";
 
 const BASE = "https://kempingi.com";
 const CATEGORIES = ["z-basenem","dla-dzieci","nad-jeziorem","nad-morzem","w-gorach","przyjazne-psom","glamping","tanie","z-wifi","caloroczne"];

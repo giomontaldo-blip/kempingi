@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { organizationSchema, websiteSchema } from "@/lib/schema";
+import { organizationSchema, websiteSchema } from "../lib/schema";
 
 const inter = Inter({
   subsets: ["latin", "latin-ext"],
