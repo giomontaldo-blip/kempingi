@@ -1,12 +1,9 @@
+import { getRequestContext } from "@cloudflare/next-on-pages";
 import type { CampingListItem, CampingWithLocation, Obszar } from "@/types/db";
 
-declare global {
-  var __D1_DB__: D1Database | undefined;
-}
-
 function getDB(): D1Database {
-  if (typeof globalThis.__D1_DB__ !== "undefined") return globalThis.__D1_DB__;
-  throw new Error("D1 binding not found.");
+  const { env } = getRequestContext();
+  return (env as CloudflareEnv).DB;
 }
 
 function parseImages(raw: string): CampingListItem["primary_image"] {
