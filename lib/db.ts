@@ -64,7 +64,22 @@ export const db = {
        WHERE l.voivodato_slug = ? AND c.slug = ? LIMIT 1`
     ).bind(voivodatoSlug, campingSlug).first<Record<string, unknown>>();
     if (!result) return null;
-    return result as unknown as CampingWithLocation;
+    return {
+      ...result,
+      location: {
+        id: result.location_id,
+        country: result.country,
+        voivodato: result.voivodato,
+        voivodato_slug: result.voivodato_slug,
+        city: result.city,
+        obszar_id: result.obszar_id,
+      },
+      obszar: result.obszar_name ? {
+        id: result.obszar_id,
+        name_pl: result.obszar_name,
+        slug: result.obszar_slug,
+      } : null,
+    } as unknown as CampingWithLocation;
   },
 
   async getCountByVoivodato(): Promise<{ voivodato_slug: string; voivodato: string; count: number }[]> {
