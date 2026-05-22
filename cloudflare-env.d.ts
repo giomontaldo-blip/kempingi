@@ -24,3 +24,7 @@ interface D1ExecResult {
   count: number;
   duration: number;
 }
+
+interface CloudflareEnv {
+  DB: D1Database;
+}
